@@ -261,3 +261,84 @@ select avg(year_result) from student group by section_id
 select section_id,avg(year_result) from student
 group by section_id,year_result
 having avg(year_result) = (select max(Average) from moyenne)
+
+--3.1
+insert into student values((select max(student_id)+1 from student),'jonathan','druet','2000-03-14','djonathan','1320','19','EG2210');
+--3.2
+insert into student values((select max(student_id)+1 from student),'kevin',null,'1995-06-23',null,'1320','1','EG2210');
+--3.3
+Create table section_archives(
+  section_id int NOT NULL,
+  section_name varchar(50),
+  delegate_id int NOT NULL
+  CONSTRAINT PK_section_archives PRIMARY KEY (section_id)		
+)
+insert into section_archives (section_id,section_name,delegate_id) 
+select section_id,section_name,delegate_id from section
+
+--CORRECTION OPTI
+select * into section_archives from section go select* from section_archives
+
+--3.4
+insert into student values(
+((select max(student_id)+1 from student))
+,'sebastien','LaPerche','2000-03-14',null,
+(select section_id from student where first_name like 'Keanu' and last_name like 'Reeves'),
+'19',
+(select c.course_id from course c join professor p on c.professor_id=p.professor_id where p.professor_name like 'Zidda')
+);
+--3.5
+insert into section values(
+'1530',
+'Administration des SI',
+(select delegate_id from section where section_id = '1010')
+)
+
+--3.6
+update student
+set course_id = 'ED2210'
+where student_id = 26
+--3.7
+update student
+set last_name = 'Babiarz'
+where student_id = 27
+update student
+set year_result = '18',
+login = (select lower(SUBSTRING(first_name,1,1)+last_name) from student where student_id = 27)
+where student_id = 27
+--3.8 
+update student
+set year_result = '15'
+where section_id = '1010'
+--3.9
+update section
+set delegate_id = (select student_id from student where first_name like 'Keanu' and last_name like 'Reeves')
+where section_id = (select section_id from student where first_name like 'Keanu' and last_name like 'Reeves')
+--3.10
+update section
+set section_name = (select section_name from section where section_id = '1320'),
+delegate_id = (select delegate_id from section where section_id = '1320')
+where section_id = '1530'
+--3.11
+
+update section
+set delegate_id = (select student_id from student where last_name like 'milano')
+where section_id = (select section_id from student where last_name like 'milano')
+
+
+--3.13
+delete student where student_id = 26 OR student_id = (select student_id from student where last_name like 'Basinger')
+
+--3.14
+delete student where year_result < 8
+
+--3.15
+delete course where professor_id is null
+
+--3.16
+delete student
+delete professor
+delete section
+delete course
+delete grade
+
